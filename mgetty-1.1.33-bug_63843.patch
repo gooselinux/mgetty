@@ -1,0 +1,26 @@
+diff -up mgetty-1.1.36/samples/new_fax.tiff.bug_63843 mgetty-1.1.36/samples/new_fax.tiff
+--- mgetty-1.1.36/samples/new_fax.tiff.bug_63843	2008-10-09 22:57:12.000000000 +0200
++++ mgetty-1.1.36/samples/new_fax.tiff	2008-10-09 22:57:12.000000000 +0200
+@@ -24,7 +24,7 @@
+ #
+ #!/bin/sh
+ #
+-MAILTO="Faxverteiler <fax>"
++MAILTO="faxadmin"
+ SENDER="$2"
+ 
+ case $4 in
+@@ -32,11 +32,11 @@ case $4 in
+   *) STRETCH=
+ esac
+ 
+-FAX=`echo $1|sed 's/...$//'`
++FAX=`echo $4|sed 's/...$//'`
+ FAX_BASENAME=`basename $FAX`
+ 
+ fax2tiff $STRETCH -M -4 -o /tmp/$FAX_BASENAME.tiff $FAX.*
+-metasend -b -F "Fax Getty <root>" -f /tmp/$FAX_BASENAME.tiff \ 
++metasend -b -F "Fax Getty <root>" -f /tmp/$FAX_BASENAME.tiff \
+   -m image/tiff -s "fax from $SENDER" -S 4000000 -t $MAILTO 
+ rm /tmp/$FAX_BASENAME.tiff
+ 

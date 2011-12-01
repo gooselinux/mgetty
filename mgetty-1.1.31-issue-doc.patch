@@ -1,0 +1,28 @@
+diff -up mgetty-1.1.36/doc/mgetty.8in.issue-doc mgetty-1.1.36/doc/mgetty.8in
+--- mgetty-1.1.36/doc/mgetty.8in.issue-doc	2008-10-09 22:56:23.000000000 +0200
++++ mgetty-1.1.36/doc/mgetty.8in	2008-10-09 22:56:23.000000000 +0200
+@@ -42,16 +42,16 @@ initialization whatsoever.
+ .B -p <login prompt>
+ Use the given string to prompt users for their login names. Various
+ tokens are allowed in this string. These tokens are: @ for the system
+-name, \\n, \\r, \\g, \\b, \\v, \\f, \\t for newline, carriage return, bell,
+-backspace, vertical tab, form feed, and tab, respectively.
+-\\P and \\L will expand to the tty name ("ttyS0"). \\Y will give the Caller
++name, \\n, \\g, \\f, for newline, bell,
++and form feed, respectively.
++\\v and \\r will expand to the OS version and release.
++\\P, \\l and \\L will expand to the tty name ("ttyS0"). 
++\\Y will give the Caller
+ ID, \\I the "CONNECT foobar" string returned
+-by the modem, and \\S will output the port speed.
+-\\s, \\m, \\V, \\R represent the operating system, the hardware name,
+-the OS version, the OS release.
++by the modem, and \\S or \\b will output the port speed.
+ \\N and \\U give the number of users currently logged in.
+-\\C will be changed into the result of ctime(), and \\D and \\T will
+-output the date and time, respectively. Finally, \\<digit> will use digit
++\\C will be changed into the result of ctime(), and \\D or \\d and \\t or \\T
++will output the date and time, respectively. Finally, \\<digit> will use digit
+ as octal/decimal/hexadecimal representation of the character to follow.
+ 
+ The default prompt is specified at compile time.

@@ -1,0 +1,12 @@
+diff -up mgetty-1.1.36/voice/voice.conf-dist.voiceconfig mgetty-1.1.36/voice/voice.conf-dist
+--- mgetty-1.1.36/voice/voice.conf-dist.voiceconfig	2008-10-09 22:56:11.000000000 +0200
++++ mgetty-1.1.36/voice/voice.conf-dist	2008-10-09 22:56:11.000000000 +0200
+@@ -51,7 +51,7 @@ voice_dir /var/spool/voice
+ #
+ 
+ phone_owner root
+-phone_group phone
++phone_group uucp
+ phone_mode 0660
+ 
+ #

@@ -1,0 +1,32 @@
+diff -up mgetty-1.1.36/login.c.167830_tty_access mgetty-1.1.36/login.c
+--- mgetty-1.1.36/login.c.167830_tty_access	2008-10-09 22:57:18.000000000 +0200
++++ mgetty-1.1.36/login.c	2008-10-09 22:57:18.000000000 +0200
+@@ -256,6 +256,12 @@ void login_dispatch _P3( (user, is_callb
+ 		{
+ 		    lprintf( L_NOISE, "login: user id: %s (uid %d, gid %d)",
+ 				      user_id, pw->pw_uid, pw->pw_gid );
++		    /* get tty device name */
++		    char devname[MAXLINE+1], stdinname[128];
++		    snprintf(stdinname,128,"/proc/%d/fd/0",getpid());		    
++		    int r = readlink(&(stdinname[0]),&(devname[0]),MAXLINE);
++		    devname[r]='\0';
++
+ #if SECUREWARE
+ 		    if ( setluid( pw->pw_uid ) == -1 )
+ 		    {
+@@ -266,9 +272,15 @@ void login_dispatch _P3( (user, is_callb
+ 		    {
+ 			lprintf( L_ERROR, "cannot set gid %d", pw->pw_gid );
+ 		    }
++		    initgroups(pw->pw_name,pw->pw_gid);
+ 		    if ( setuid( pw->pw_uid ) == -1 )
+ 		    {
+ 			lprintf( L_ERROR, "cannot set uid %d", pw->pw_uid );
++		    }		   
++		    if (  ( r > 0) && (access(devname, R_OK | W_OK) != 0) )
++		    {
++			lprintf( L_FATAL, "user %s denied rw access to %s", user_id, devname );
++			exit(FAIL);
+ 		    }
+ 		}
+ 	    }				/* end if (uid given) */

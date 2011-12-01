@@ -1,0 +1,177 @@
+diff -up mgetty-1.1.36/callback/conf_cb.c.unioninit mgetty-1.1.36/callback/conf_cb.c
+--- mgetty-1.1.36/callback/conf_cb.c.unioninit	2008-10-09 22:56:40.000000000 +0200
++++ mgetty-1.1.36/callback/conf_cb.c	2008-10-09 22:56:40.000000000 +0200
+@@ -30,7 +30,7 @@ static char * def_init_chat_seq[] = { ""
+  */
+ 
+ struct conf_data_mgetty c = {
+-	{ "dialout-devices", {(p_int)FAX_MODEM_TTYS}, CT_STRING, C_PRESET },
++	{ "dialout-devices", {p:FAX_MODEM_TTYS}, CT_STRING, C_PRESET },
+ 	{ "dialout-devices", {0}, CT_STRING, C_IGNORE },
+ 	{ "delay", {20}, CT_INT, C_PRESET },
+ 	{ "delay-randomize", {10}, CT_INT, C_PRESET },
+@@ -39,7 +39,7 @@ struct conf_data_mgetty c = {
+ 
+ 	{ "modem-init", {0}, CT_CHAT, C_PRESET },
+ 	{ "speed", {DEFAULT_PORTSPEED}, CT_INT, C_PRESET },
+-	{ "dial-prefix", {(p_int) FAX_DIAL_PREFIX}, CT_STRING, C_PRESET },
++	{ "dial-prefix", {p: FAX_DIAL_PREFIX}, CT_STRING, C_PRESET },
+ 	{ "autobauding", {FALSE}, CT_BOOL, C_PRESET },
+ 	{ "prompt-waittime", {300}, CT_INT, C_PRESET },
+ 
+diff -up mgetty-1.1.36/conf_mg.c.unioninit mgetty-1.1.36/conf_mg.c
+--- mgetty-1.1.36/conf_mg.c.unioninit	2008-10-09 22:56:40.000000000 +0200
++++ mgetty-1.1.36/conf_mg.c	2008-10-09 22:56:40.000000000 +0200
+@@ -58,9 +58,9 @@ struct conf_data_mgetty c = {
+ 	{ "direct", {FALSE}, CT_BOOL, C_PRESET },
+ 	{ "blocking", {FALSE}, CT_BOOL, C_PRESET },
+ 
+-	{ "port-owner", {(p_int) DEVICE_OWNER}, CT_STRING, C_PRESET },
++	{ "port-owner", {p: DEVICE_OWNER}, CT_STRING, C_PRESET },
+ #ifdef DEVICE_GROUP
+-	{ "port-group", {(p_int) DEVICE_GROUP}, CT_STRING, C_PRESET },
++	{ "port-group", {p: DEVICE_GROUP}, CT_STRING, C_PRESET },
+ #else
+ 	{ "port-group", {0}, CT_STRING, C_EMPTY },
+ #endif
+@@ -71,7 +71,7 @@ struct conf_data_mgetty c = {
+ 	{ "need-dsr", {FALSE}, CT_BOOL, C_PRESET },
+ 	{ "data-only", {FALSE}, CT_BOOL, C_PRESET },
+ 	{ "fax-only", {FALSE}, CT_BOOL, C_PRESET },
+-	{ "modem-type", {(p_int) DEFAULT_MODEMTYPE}, CT_STRING, C_PRESET },
++	{ "modem-type", {p: DEFAULT_MODEMTYPE}, CT_STRING, C_PRESET },
+ 	{ "modem-quirks", {0}, CT_INT, C_EMPTY },
+ 	{ "init-chat", {0}, CT_CHAT, C_EMPTY },
+ 	{ "force-init-chat", {0}, CT_CHAT, C_EMPTY },
+@@ -82,9 +82,9 @@ struct conf_data_mgetty c = {
+ 
+ 	{ "modem-check-time", {MODEM_CHECK_TIME}, CT_INT, C_PRESET },
+ 	{ "rings", {1}, CT_INT, C_PRESET },
+-	{ "msn-list", {(p_int) NULL}, CT_CHAT, C_EMPTY },
++	{ "msn-list", {p: NULL}, CT_CHAT, C_EMPTY },
+ 	{ "get-cnd-chat", {0}, CT_CHAT, C_EMPTY },
+-	{ "cnd-program", {(p_int) NULL}, CT_STRING, C_EMPTY },
++	{ "cnd-program", {p: NULL}, CT_STRING, C_EMPTY },
+ 	{ "answer-chat", {0}, CT_CHAT, C_EMPTY },
+ 	{ "answer-chat-timeout", {80}, CT_INT, C_PRESET },
+ 	{ "autobauding", {FALSE}, CT_BOOL, C_PRESET },
+@@ -93,9 +93,9 @@ struct conf_data_mgetty c = {
+ 	{ "ringback-time", {30}, CT_INT, C_PRESET },
+ 
+ 	{ "ignore-carrier", {FALSE}, CT_BOOL, C_PRESET },
+-	{ "issue-file", {(p_int)"/etc/issue"}, CT_STRING, C_PRESET },
++	{ "issue-file", {p:"/etc/issue"}, CT_STRING, C_PRESET },
+ 	{ "prompt-waittime", {500}, CT_INT, C_PRESET },
+-	{ "login-prompt", {(p_int) LOGIN_PROMPT}, CT_STRING, C_PRESET },
++	{ "login-prompt", {p: LOGIN_PROMPT}, CT_STRING, C_PRESET },
+ #ifdef MAX_LOGIN_TIME
+ 	{ "login-time", {MAX_LOGIN_TIME}, CT_INT, C_PRESET },
+ #else
+@@ -105,39 +105,39 @@ struct conf_data_mgetty c = {
+ 	{ "login-env-ttyprompt-hack", {FALSE}, CT_BOOL, C_PRESET },
+ 
+ #ifdef LOGIN_CFG_FILE
+-	{ "login-conf-file", {(p_int) LOGIN_CFG_FILE}, CT_STRING, C_PRESET },
++	{ "login-conf-file", {p: LOGIN_CFG_FILE}, CT_STRING, C_PRESET },
+ #else
+ 	{ "login-conf-file", {0}, CT_STRING, C_EMPTY },
+ #endif
+ 
+-	{ "fax-id", {(p_int)FAX_STATION_ID}, CT_STRING, C_PRESET },
++	{ "fax-id", {p:FAX_STATION_ID}, CT_STRING, C_PRESET },
+ 	{ "fax-min-speed", {0}, CT_INT, C_PRESET },
+ 	{ "fax-max-speed", {14400}, CT_INT, C_PRESET },
+ 	{ "fax-server-file", {0}, CT_STRING, C_EMPTY },
+ 	{ "diskspace", {MINFREESPACE}, CT_INT, C_PRESET },
+ #ifdef MAIL_TO
+-	{ "notify", {(p_int)MAIL_TO}, CT_STRING, C_PRESET },
++	{ "notify", {p:MAIL_TO}, CT_STRING, C_PRESET },
+ #else
+ 	{ "notify", {0}, CT_STRING, C_EMPTY },
+ #endif
+-	{ "fax-owner", {(p_int)FAX_IN_OWNER}, CT_STRING, C_PRESET },
++	{ "fax-owner", {p:FAX_IN_OWNER}, CT_STRING, C_PRESET },
+ #ifdef FAX_IN_GROUP
+-	{ "fax-group", {(p_int)FAX_IN_GROUP}, CT_STRING, C_PRESET },
++	{ "fax-group", {p:FAX_IN_GROUP}, CT_STRING, C_PRESET },
+ #else
+ 	{ "fax-group", {0}, CT_STRING, C_EMPTY },
+ #endif
+ 	{ "fax-mode", {FAX_FILE_MODE}, CT_INT, C_PRESET },
+ #ifdef __STDC__
+-	{ "fax-spool-in", {(p_int) FAX_SPOOL_IN ":/tmp"}, CT_STRING, C_PRESET },
++	{ "fax-spool-in", {p: FAX_SPOOL_IN ":/tmp"}, CT_STRING, C_PRESET },
+ #else
+-	{ "fax-spool-in", {(p_int) FAX_SPOOL_IN}, CT_STRING, C_PRESET },
++	{ "fax-spool-in", {p: FAX_SPOOL_IN}, CT_STRING, C_PRESET },
+ #endif
+ 
+ 	{ "debug", {LOG_LEVEL}, CT_INT, C_PRESET },
+ 	
+ 	{ "statistics-chat", {0}, CT_CHAT, C_EMPTY },
+ 	{ "statistics-file", {0}, CT_STRING, C_EMPTY },
+-	{ "gettydefs", {(p_int)GETTYDEFS_DEFAULT_TAG}, CT_STRING, C_PRESET },
++	{ "gettydefs", {p:GETTYDEFS_DEFAULT_TAG}, CT_STRING, C_PRESET },
+ 	{ "term", {0}, CT_STRING, C_EMPTY },
+ 
+ 	{ NULL, {0}, CT_STRING, C_EMPTY }};
+diff -up mgetty-1.1.36/conf_sf.c.unioninit mgetty-1.1.36/conf_sf.c
+--- mgetty-1.1.36/conf_sf.c.unioninit	2008-10-09 22:56:40.000000000 +0200
++++ mgetty-1.1.36/conf_sf.c	2008-10-09 22:56:40.000000000 +0200
+@@ -31,11 +31,11 @@ struct conf_data_sendfax c = {
+ 	{ "fax-devices", {0}, CT_STRING, C_IGNORE },
+ 	{ "modem-init", {0}, CT_STRING, C_EMPTY },
+ #ifdef FAX_MODEM_HANDSHAKE
+-	{ "modem-handshake", {(p_int) FAX_MODEM_HANDSHAKE}, CT_STRING, C_PRESET },
++	{ "modem-handshake", {p: FAX_MODEM_HANDSHAKE}, CT_STRING, C_PRESET },
+ #else
+ 	{ "modem-handshake", {0}, CT_STRING, C_EMPTY },
+ #endif
+-	{ "modem-type", {(p_int) DEFAULT_MODEMTYPE}, CT_STRING, C_PRESET },
++	{ "modem-type", {p: DEFAULT_MODEMTYPE}, CT_STRING, C_PRESET },
+ 	{ "modem-quirks", {0}, CT_INT, C_EMPTY },
+ 	{ "fax-send-flow", {FAXSEND_FLOW}, CT_FLOWL, C_PRESET },
+ 	{ "fax-rec-flow", {FAXREC_FLOW}, CT_FLOWL, C_PRESET },
+@@ -45,9 +45,9 @@ struct conf_data_sendfax c = {
+ 	{ "switchbd", {FAX_SEND_SWITCHBD}, CT_INT, C_PRESET },
+ 	{ "open-delay",	{0}, CT_INT, C_EMPTY },
+ 	{ "ignore-carrier", {TRUE }, CT_BOOL, C_PRESET },
+-	{ "dial-prefix", {(p_int) FAX_DIAL_PREFIX}, CT_STRING, C_PRESET },
+-	{ "fax-id", {(p_int)FAX_STATION_ID}, CT_STRING, C_PRESET },
+-	{ "poll-dir", {(p_int)"."}, CT_STRING, C_PRESET },
++	{ "dial-prefix", {p: FAX_DIAL_PREFIX}, CT_STRING, C_PRESET },
++	{ "fax-id", {p:FAX_STATION_ID}, CT_STRING, C_PRESET },
++	{ "poll-dir", {p:"."}, CT_STRING, C_PRESET },
+ 	{ "normal-res", {0}, CT_BOOL, C_PRESET },
+ 	{ "fax-min-speed", {0}, CT_INT, C_PRESET },
+ 	{ "fax-max-speed", {14400}, CT_INT, C_PRESET },
+@@ -57,7 +57,7 @@ struct conf_data_sendfax c = {
+ 	{ "page-header", {0}, CT_STRING, C_EMPTY },
+ 	{ "" /* stdin */, {FALSE}, CT_BOOL, C_PRESET },
+ 	{ "" /* rename */, {FALSE}, CT_BOOL, C_PRESET },
+-	{ "" /* acct_handle */, {(p_int)""}, CT_STRING, C_PRESET },
++	{ "" /* acct_handle */, {p:""}, CT_STRING, C_PRESET },
+ 	{ NULL, {0}, CT_STRING, C_EMPTY }};
+ 
+ int sendfax_parse_args _P2( (argc,argv), int argc, char ** argv )
+diff -up mgetty-1.1.36/voice/include/config.h.unioninit mgetty-1.1.36/voice/include/config.h
+--- mgetty-1.1.36/voice/include/config.h.unioninit	2008-10-09 22:56:40.000000000 +0200
++++ mgetty-1.1.36/voice/include/config.h	2008-10-09 22:56:40.000000000 +0200
+@@ -30,7 +30,7 @@ struct conf_voice_data cvd =
+            
+ #else
+ 
+-#define STRING (p_int)
++#define STRING p:
+ #define KEYWORD(name) \
+  struct conf_data name;
+ #define CONF(field_name, default_value, value_type) \
+@@ -55,7 +55,7 @@ extern struct conf_voice_data
+ 
+ #ifdef CONFIG_C
+ 
+-     {NULL, {(p_int) ""}, CT_STRING, C_EMPTY}
++     {NULL, {p: ""}, CT_STRING, C_EMPTY}
+      };
+ 
+ #else

@@ -1,0 +1,31 @@
+diff -up mgetty-1.1.36/fax/faxspool.in.no-acroread mgetty-1.1.36/fax/faxspool.in
+--- mgetty-1.1.36/fax/faxspool.in.no-acroread	2008-10-09 22:56:51.000000000 +0200
++++ mgetty-1.1.36/fax/faxspool.in	2008-10-09 22:56:51.000000000 +0200
+@@ -389,10 +389,23 @@ fs_cvt_pdf()
+ {
+     driver="$GS_DRIVER_HI"
+     test X$3 = X-n && driver="$GS_DRIVER_LO"
+-
+-    cat $1 |
+-	acroread -toPostScript |
+-	gs $driver -sOutputFile=$2%03d -dNOPAUSE -q -dSAFER -
++    r=0;
++    if /usr/bin/which acroread >/dev/null 2>&1; then
++       cat $1 |
++	  acroread -toPostScript |
++	  gs $driver -sOutputFile=$2%03d -dNOPAUSE -q -dSAFER -
++       r=$?;
++       if [ $r != 0 ]; then
++          cat $1 |
++	     acroread -toPostScript -level1 |
++	     gs $driver -sOutputFile=$2%03d -dNOPAUSE -q -dSAFER -
++	  r=$?;
++       fi;
++    else
++       cat $1 | gs $driver -sOutputFile=$2%03d -dNOPAUSE -q -dSAFER -
++       r=$?;
++    fi;
++    return $r;
+ }
+ 
+ 

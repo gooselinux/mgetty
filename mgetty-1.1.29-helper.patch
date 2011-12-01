@@ -1,0 +1,12 @@
+diff -up mgetty-1.1.36/fax/Makefile.helper mgetty-1.1.36/fax/Makefile
+--- mgetty-1.1.36/fax/Makefile.helper	2008-10-09 22:56:28.000000000 +0200
++++ mgetty-1.1.36/fax/Makefile	2008-10-09 22:56:28.000000000 +0200
+@@ -58,7 +58,7 @@ install: all
+ 	done
+ 	$(INSTALL) -m 755 faxrunqd $(SBINDIR)
+ 	$(INSTALL) faxq-helper $(LIBDIR)
+-	chown $(FAX_OUT_USER) $(LIBDIR)/faxq-helper
++	chown $(FAX_OUT_USER) $(LIBDIR)/faxq-helper || :
+ 	chmod 4711 $(LIBDIR)/faxq-helper
+ #
+ # data files

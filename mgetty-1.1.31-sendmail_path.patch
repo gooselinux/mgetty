@@ -1,0 +1,17 @@
+diff -up mgetty-1.1.36/policy.h.sendmail_path mgetty-1.1.36/policy.h
+--- mgetty-1.1.36/policy.h.sendmail_path	2008-10-09 22:56:56.000000000 +0200
++++ mgetty-1.1.36/policy.h	2008-10-09 22:56:56.000000000 +0200
+@@ -578,8 +578,12 @@
+ # endif
+ #endif
+ 
++#ifdef linux
++# define MAILER         "/usr/sbin/sendmail"
++# define NEED_MAIL_HEADERS
++#endif
+ #ifndef MAILER
+-# define MAILER		"/usr/lib/sendmail"
++# define MAILER		"/usr/sbin/sendmail"
+ # define NEED_MAIL_HEADERS
+ #endif
+ 

@@ -1,0 +1,4 @@
+/var/log/vm.log {
+	nocompress
+	missingok	
+}

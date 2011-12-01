@@ -1,0 +1,58 @@
+diff -up mgetty-1.1.36/login.c.167830 mgetty-1.1.36/login.c
+--- mgetty-1.1.36/login.c.167830	2008-10-09 22:57:23.000000000 +0200
++++ mgetty-1.1.36/login.c	2008-10-09 22:57:23.000000000 +0200
+@@ -18,7 +18,7 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+-
++#include <sys/ioctl.h>
+ /* NeXTStep/86 has some byte order problems (Christian Starkjohann) */
+ #if defined(NeXT) && defined(__LITTLE_ENDIAN__) && !defined(NEXTSGTTY)
+ # define pw_uid pw_short_pad1
+@@ -372,6 +372,8 @@ fallthrough:
+     if ( fcntl(0, F_GETFD, 0 ) & 1 ) 
+ 	lprintf( L_WARN, "WARNING: close-on-exec bit set on FD 0 - OS BUG?" );
+ 
++    ioctl(0, TIOCSCTTY, (void*)1);
++
+     /* execute login */
+     execv( cmd, argv );
+ 
+diff -up mgetty-1.1.36/mgetty.c.167830 mgetty-1.1.36/mgetty.c
+--- mgetty-1.1.36/mgetty.c.167830	2008-10-09 22:57:23.000000000 +0200
++++ mgetty-1.1.36/mgetty.c	2008-10-09 22:57:23.000000000 +0200
+@@ -1034,7 +1034,15 @@ Ring_got_action:
+ 	}
+ 
+ 	/* set permissions to "rw-------" for login */
+-	(void) chmod(devname, 0600);
++
++	/* JVD, 2005-09-16, : see Red Hat BZ 167830! 
++	 * If devname is owned by 'uucp', and we run login as a non-root userid,
++	 * then login gets a terminal it has no RW perms for ... bad idea!
++	 *
++	 * Let users control the tty device access mode with with 'port-mode'!  
++	 */
++	if( ! c_isset(port_mode) )
++	    (void) chmod(devname, 0600);
+ 
+ 	/* set ttystate for login ("after"),
+ 	 *  cr-nl mapping flags are set by getlogname()!
+@@ -1079,7 +1087,15 @@ Ring_got_action:
+ 	{
+ 	    lprintf( L_WARN, "WARNING: starting login while DCD is low!" );
+ 	}
+-
++	
++	/* try to ensure the terminal buffers are clear when we hand over terminal to login:*/
++	
++	tcflush(0, TCIOFLUSH);
++	tcgetattr(0,&tio);
++	tio.c_lflag &= ~TOSTOP;
++	tcsetattr(0,TCSANOW,&tio);
++	tcsetpgrp(0,getpid());
++	
+ 	/* hand off to login dispatcher (which will call /bin/login) */
+ 	login_dispatch( buf, mgetty_state == St_callback_login? TRUE: FALSE,
+ 			c_string(login_config) );

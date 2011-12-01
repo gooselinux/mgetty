@@ -1,0 +1,78 @@
+diff -up mgetty-1.1.36/getdisk.c.lfs mgetty-1.1.36/getdisk.c
+--- mgetty-1.1.36/getdisk.c.lfs	2008-10-09 22:57:02.000000000 +0200
++++ mgetty-1.1.36/getdisk.c	2008-10-09 22:57:02.000000000 +0200
+@@ -198,11 +198,11 @@ long minfreespace = MINFREESPACE;
+  */
+ 
+ #ifndef TESTDISK
+-int checkspace _P1 ((path), char *path)
++unsigned long long int checkspace _P1 ((path), char *path)
+ {
+ #ifdef HASDISKSTAT
+     struct mountinfo mi;
+-    unsigned int kbytes;
++    unsigned long long int kbytes;
+ 
+     if (getdiskstats(path, &mi))
+ 	return(1);
+@@ -213,7 +213,7 @@ int checkspace _P1 ((path), char *path)
+      */
+     kbytes = (mi.mi_bavail>>2) * (mi.mi_bsize>>8);
+ 
+-    lprintf( L_NOISE, "%d Mb free on %s", kbytes/1024, path );
++    lprintf( L_NOISE, "%llu Mb free on %s", kbytes/1024, path );
+     return( kbytes / minfreespace);
+ #else
+     return(1);
+@@ -339,12 +339,12 @@ int main(argc, argv) int argc; char **ar
+ 	    fprintf(stderr, "statfs on %s failed\n", *argv);
+ 	} else {
+ 	    printf( "STATFS report on %s:\n", *argv );
+-	    printf( "\tfundamental file system block size      %ld\n", mi.mi_bsize);
+-	    printf( "\ttotal data blocks in file system        %ld\n", mi.mi_blocks);
+-	    printf( "\tfree block in fs                        %ld\n", mi.mi_bfree);
+-	    printf( "\tfree blocks avail to non-superuser      %ld\n", mi.mi_bavail);
+-	    printf( "\ttotal file nodes in file system         %ld\n", mi.mi_files);
+-	    printf( "\tfree file nodes in fs                   %ld\n", mi.mi_ffree);
++	    printf( "\tfundamental file system block size      %lu\n", (unsigned long int) mi.mi_bsize);
++	    printf( "\ttotal data blocks in file system        %llu\n", (unsigned long long int) mi.mi_blocks);
++	    printf( "\tfree block in fs                        %llu\n", (unsigned long long int) mi.mi_bfree);
++	    printf( "\tfree blocks avail to non-superuser      %llu\n", (unsigned long long int) mi.mi_bavail);
++	    printf( "\ttotal file nodes in file system         %llu\n", (unsigned long long int) mi.mi_files);
++	    printf( "\tfree file nodes in fs                   %llu\n", (unsigned long long int) mi.mi_ffree);
+ 	}
+ 	argv++;
+     }
+diff -up mgetty-1.1.36/mgetty.h.lfs mgetty-1.1.36/mgetty.h
+--- mgetty-1.1.36/mgetty.h.lfs	2008-10-09 22:57:02.000000000 +0200
++++ mgetty-1.1.36/mgetty.h	2008-10-09 22:57:02.000000000 +0200
+@@ -307,19 +307,28 @@ int cnd_call _PROTO((char *name, char *t
+ /* disk statistics retrieval in getdisk.c */
+ 
+ struct mountinfo {
++#ifndef _SYS_STATVFS_H
+     long	mi_bsize;	/* fundamental block size */
+     long	mi_blocks;	/* number of blocks in file system */
+     long	mi_bfree;	/* number of free blocks in file system */
+     long	mi_bavail;	/* blocks available to non-super user */
+     long	mi_files;	/* number of file nodes in file system */
+     long	mi_ffree;	/* number of free nodes in fs */
++#else
++    unsigned long int	mi_bsize;
++    fsblkcnt_t		mi_blocks;
++    fsblkcnt_t		mi_bfree;
++    fsblkcnt_t		mi_bavail;
++    fsfilcnt_t		mi_files;
++    fsfilcnt_t		mi_ffree;
++#endif /* _SYS_STATVFS_H */
+ };
+ 
+ typedef struct mountinfo	mntinf;
+ 
+ extern long minfreespace;
+ 
+-int checkspace _PROTO((char *path));
++unsigned long long int checkspace _PROTO((char *path));
+ int getdiskstats _PROTO ((char *path, mntinf *mi));
+ 
+ /********* system prototypes **************/

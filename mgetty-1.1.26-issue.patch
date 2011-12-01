@@ -1,0 +1,106 @@
+diff -up mgetty-1.1.36/logname.c.issue mgetty-1.1.36/logname.c
+--- mgetty-1.1.36/logname.c.issue	2008-10-09 22:56:17.000000000 +0200
++++ mgetty-1.1.36/logname.c	2008-10-09 22:56:17.000000000 +0200
+@@ -97,12 +97,14 @@ char * ln_escape_prompt _P1( (ep), char 
+ 	    switch ( *ep )
+ 	    {
+ 	      case 'n': p[i++] = '\n'; break;
+-	      case 'r': p[i++] = '\r'; break;
+ 	      case 'g': p[i++] = '\007'; break;
++	      case 'f': p[i++] = '\f'; break;
++#ifndef ESCAPE_LIKE_AGETTY
++	      case 'r': p[i++] = '\r'; break;
+ 	      case 'b': p[i++] = '\010'; break;
+ 	      case 'v': p[i++] = '\013'; break;
+-	      case 'f': p[i++] = '\f'; break;
+ 	      case 't': p[i++] = '\t'; break;
++#endif
+ 	      case 's':					/* Operating System */
+ 		    if ( i + strlen(un.sysname) +1 > MAX_PROMPT_LENGTH ) break;
+ 		    i += strappnd( &p[i], un.sysname );
+@@ -111,10 +113,16 @@ char * ln_escape_prompt _P1( (ep), char 
+ 		    if ( i + strlen(un.machine) +1 > MAX_PROMPT_LENGTH ) break;
+ 		    i += strappnd( &p[i], un.machine );
+ 		    break;
++#ifdef ESCAPE_LIKE_AGETTY
++	      case 'r':					/* OS release */
++#endif
+ 	      case 'R':					/* OS release */
+ 		    if ( i + strlen(un.release) +1 > MAX_PROMPT_LENGTH ) break;
+ 		    i += strappnd( &p[i], un.release );
+ 		    break;
++#ifdef ESCAPE_LIKE_AGETTY
++	      case 'v':					/* OS version */
++#endif
+ 	      case 'V':					/* OS version */
+ 		    if ( i + strlen(un.version) +1 > MAX_PROMPT_LENGTH ) break;
+ 		    i += strappnd( &p[i], un.version );
+@@ -126,6 +134,12 @@ char * ln_escape_prompt _P1( (ep), char 
+ 		    i += strappnd( &p[i], CallerId );
+ 		    break;
+ 		}
++#ifdef ESCAPE_LIKE_AGETTY
++	      case 'l':					/* this doesn't cause */
++							/* conflicts between */
++							/* mgetty and agetty */
++							/* maybe unconditionalize? */
++#endif
+ 	      case 'P':					/* port name */
+ 	      case 'L':					/* tty line */
+ 		{
+@@ -147,13 +161,16 @@ char * ln_escape_prompt _P1( (ep), char 
+ 		    i += strappnd( &p[i], Connect);
+ 		    break;
+ 		}
+-	      case 'N':					/* numer of */
++	      case 'N':					/* number of */
+ 	      case 'U':					/* users */
+ 		{
+ 		    sprintf( &p[i], "%d", get_current_users() );
+ 		    i = strlen(p);
+ 		    break;
+ 		}
++#ifdef ESCAPE_LIKE_AGETTY
++	      case 'b':					/* baud rate */
++#endif
+ 	      case 'S':					/* port speed */
+ 		{					/* ugly, I know. */
+ 		    TIO temp_t;
+@@ -162,6 +179,10 @@ char * ln_escape_prompt _P1( (ep), char 
+ 		    i = strlen(p);
+ 		}
+ 		break;
++#ifdef ESCAPE_LIKE_AGETTY
++	      case 'd':
++	      case 't':
++#endif
+ 	      case 'D':			/* fallthrough */
+ 	      case 'T':
+ 		if ( i + 30 > MAX_PROMPT_LENGTH )
+@@ -175,7 +196,7 @@ char * ln_escape_prompt _P1( (ep), char 
+ 
+ 		    if ( tm == NULL ) break;
+ 
+-		    if ( *ep == 'D' )
++		    if ( ( *ep == 'D' ) || ( *ep == 'd' ) )
+ 		        sprintf( &p[i], "%d/%d/%d", tm->tm_mon+1,
+ 				 tm->tm_mday, tm->tm_year + 1900 );
+ 		    else
+diff -up mgetty-1.1.36/policy.h.issue mgetty-1.1.36/policy.h
+--- mgetty-1.1.36/policy.h.issue	2008-10-09 22:56:17.000000000 +0200
++++ mgetty-1.1.36/policy.h	2008-10-09 22:56:17.000000000 +0200
+@@ -228,6 +228,14 @@
+  */
+ #define NOLOGIN_FILE "/etc/nologin.%s"
+ 
++/* How to handle escape sequences in /etc/issue and friends.
++ *
++ * If ESCAPE_LIKE_AGETTY is defined, escape sequences (stored as backslashes
++ * followed by some character) will be interpreted in a manner consistent
++ * with agetty.  Not defining ESCAPE_LIKE_AGETTY will cause the default
++ * behavior to be utilized.
++ */
++#define ESCAPE_LIKE_AGETTY
+ 
+ /* misc */
+ 

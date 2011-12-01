@@ -1,0 +1,81 @@
+diff -up mgetty-1.1.36/fax/faxrunq.in.time_range mgetty-1.1.36/fax/faxrunq.in
+--- mgetty-1.1.36/fax/faxrunq.in.time_range	2008-10-09 22:57:34.000000000 +0200
++++ mgetty-1.1.36/fax/faxrunq.in	2008-10-09 22:57:34.000000000 +0200
+@@ -174,17 +174,18 @@ do
+ # read job using 'tr', remove all quote characters, dollar, and backslash
+ #
+     eval `tr -d '\042\047\140\134\044\073' <JOB | \
+-	  $AWK 'BEGIN { user=""; mail=""; verbto=""; time=""; re=""; ah=""; }
++	  $AWK 'BEGIN { user=""; mail=""; verbto=""; time=""; time_to=""; re=""; ah=""; }
+ 		$1=="user" { user=$2 }
+ 		$1=="mail" { mail=substr( $0, 6) }
+ 		$1=="phone" { printf "PHONE=%s;", $2 }
+-		$1=="time" { time=$2 }
++		$1=="time" { time=substr($2,1,4); time_to=substr($2,6,4); }
+ 		$1=="verbose_to" { verbto=substr($0,12) }
+ 		$1=="subject" { re=substr($0,9) }
+ 		$1=="acct_handle" { ah=substr($0,13) }
+ 		END { if ( mail != "" ) printf "MAIL_TO=\"%s\";", mail
+ 				   else printf "MAIL_TO=\"%s\";", user
+ 		      printf "TIME=\"%s\";", time
++		      printf "TIME_TO=\"%s\";", time_to
+ 		      printf "VERBOSE_TO=\"%s\";", verbto
+ 		      printf "RE=\"%s\"; AH=\"%s\"", re, ah }' - `
+ 
+@@ -193,11 +194,25 @@ do
+ #
+     if [ ! -z "$TIME" ]
+     then
+-	if [ `date "+%H""%M"` -lt $TIME ]
++	if [ -z $TIME_TO ]
+ 	then
+-	    $echo "...send time not reached, postponing job"
+-	    rm JOB.locked
+-	    continue
++	    TIME_TO="0000"
++	fi
++	if [ $TIME -lt $TIME_TO ]
++	then
++	    if [ `date "+%H""%M"` -lt $TIME -o `date "+%H""%M"` -gt $TIME_TO ]
++	    then
++		$echo "...send time not reached, postponing job"
++		rm JOB.locked
++		continue
++	    fi
++	else
++	    if [ `date "+%H""%M"` -lt $TIME -o `date "+%H""%M"` -lt $TIME_TO ]
++	    then
++		$echo "...send time not reached, postponing job"
++		rm JOB.locked
++		continue
++	    fi
+ 	fi
+     fi
+ 
+diff -up mgetty-1.1.36/fax/faxspool.in.time_range mgetty-1.1.36/fax/faxspool.in
+--- mgetty-1.1.36/fax/faxspool.in.time_range	2008-10-09 22:57:34.000000000 +0200
++++ mgetty-1.1.36/fax/faxspool.in	2008-10-09 22:57:34.000000000 +0200
+@@ -545,8 +545,22 @@ do
+ 		    $echo "Invalid time specified: $h:$m" >&2; exit 2
+ 		fi
+ 		TIME="$h$m"
++	    elif expr "$2" : "[0-2][0-9]:[0-9][0-9]-[0-2][0-9]:[0-9][0-9]$" >/dev/null
++	    then
++		h=`expr "$2" : "\(..\)"`
++		m=`expr "$2" : "..:\(..\)"`
++		h2=`expr "$2" : "..:..-\(..\)"`
++		m2=`expr "$2" : "..:..-..:\(..\)"`
++		if [ "$h" -gt 23 -o "$m" -gt 60 ]
++		then
++		    $echo "Invalid time specified: $h:$m" >&2; exit 2
++		elif [ "$h2" -gt 23 -o "$m2" -gt 60 ]
++		then
++		    $echo "Invalid time specified: $h2:$m2" >&2; exit 2
++		fi
++		TIME="$h$m-$h2$m2"
+ 	    else
+-		$echo "Time must be in <hh:mm> format." >&2; exit 2
++		$echo "Time must be in <hh:mm> or <hh:mm-hh:mm> format." >&2; exit 2
+ 	    fi
+ 	    shift ; shift
+ 	    ;;

@@ -1,0 +1,94 @@
+diff -up mgetty-1.1.36/logfile.c.162174_tcflush mgetty-1.1.36/logfile.c
+--- mgetty-1.1.36/logfile.c.162174_tcflush	2008-10-09 22:57:07.000000000 +0200
++++ mgetty-1.1.36/logfile.c	2008-10-09 22:57:07.000000000 +0200
+@@ -22,6 +22,7 @@
+ #endif
+ 
+ #ifdef SYSLOG
++#include <signal.h>
+ #include <syslog.h>
+ 
+ #if !defined(linux) && !defined(BSD) && !defined(_SCO_DS) && \
+@@ -212,6 +213,7 @@ va_list pvar;
+ int     errnr;
+ char * p;
+ static int first_open = TRUE;
++sigset_t ss, oss;
+ 
+     if ( level > log_level )	/* log level high enough? */
+     {
+@@ -315,7 +317,24 @@ static int first_open = TRUE;
+ 		             tm->tm_mon+1,  tm->tm_mday,
+ 			     tm->tm_hour, tm->tm_min, tm->tm_sec, ws );
+ #ifdef SYSLOG
++        /* block all handled signals before syslog(), else an lprintf in
++         * a signal handler could deadlock
++	 */
++	sigemptyset(&ss);
++	sigaddset(&ss, SIGALRM);
++	sigaddset(&ss, SIGCHLD);
++	sigaddset(&ss, SIGHUP);
++	sigaddset(&ss, SIGINT);
++	sigaddset(&ss, SIGPIPE);
++	sigaddset(&ss, SIGQUIT);
++	sigaddset(&ss, SIGTERM);
++	sigaddset(&ss, SIGUSR1);
++	sigaddset(&ss, SIGUSR2);
++	sigprocmask(SIG_BLOCK, &ss, &oss);
++
+ 	syslog( LOG_NOTICE, "%s", ws );
++
++	sigprocmask(SIG_SETMASK, &oss, 0L);
+ #endif
+     }
+     else if ( level != L_ERROR && level != L_FATAL )
+@@ -334,7 +353,21 @@ static int first_open = TRUE;
+ 			     ( errnr <= sys_nerr ) ? sys_errlist[errnr]:
+ 			     "<error not in list>" );
+ #ifdef SYSLOG
++	sigemptyset(&ss);
++	sigaddset(&ss, SIGALRM);
++	sigaddset(&ss, SIGCHLD);
++	sigaddset(&ss, SIGHUP);
++	sigaddset(&ss, SIGINT);
++	sigaddset(&ss, SIGPIPE);
++	sigaddset(&ss, SIGQUIT);
++	sigaddset(&ss, SIGTERM);
++	sigaddset(&ss, SIGUSR1);
++	sigaddset(&ss, SIGUSR2);
++	sigprocmask(SIG_BLOCK, &ss, &oss);
++
+ 	syslog( level == L_FATAL? LOG_ALERT: LOG_ERR, "%s: %m", ws );
++
++	sigprocmask(SIG_SETMASK, &oss, 0L);
+ #endif
+ 
+ #ifndef SYSLOG
+diff -up mgetty-1.1.36/logname.c.162174_tcflush mgetty-1.1.36/logname.c
+--- mgetty-1.1.36/logname.c.162174_tcflush	2008-10-09 22:57:07.000000000 +0200
++++ mgetty-1.1.36/logname.c	2008-10-09 22:57:07.000000000 +0200
+@@ -381,10 +381,12 @@ int getlogname _P7( (prompt, tio, buf, m
+ 	    {
+ 		printf( "\r\n\07\r\nYour login time (%d minutes) ran out. Goodbye.\r\n",
+ 		       (max_login_time / 60)+1 );
+-		
++		signal(SIGALRM,SIG_DFL);/* turn off alarm */
++		alarm(0);               
+ 		sleep(3);		/* give message time to xmit */
+ 		lprintf( L_AUDIT, "failed dev=%s, pid=%d, login time out",
+ 			 Device, getpid() );
++		tcflush(1,TCOFLUSH);    /* allow us to exit without hanging (bug 164002) */
+ 		exit(0);		/* bye bye... */
+ 	    }
+ 	    ch = CKILL;			/* timeout #1 -> clear input */
+diff -up mgetty-1.1.36/mgetty.c.162174_tcflush mgetty-1.1.36/mgetty.c
+--- mgetty-1.1.36/mgetty.c.162174_tcflush	2008-10-09 22:57:07.000000000 +0200
++++ mgetty-1.1.36/mgetty.c	2008-10-09 22:57:07.000000000 +0200
+@@ -103,6 +103,7 @@ static RETSIGTYPE sig_goodbye _P1 ( (sig
+     lprintf( L_AUDIT, "failed dev=%s, pid=%d, got signal %d, exiting",
+ 	              Device, getpid(), signo );
+     rmlocks();
++    tcflush(1,TCOFLUSH);
+     exit(10);
+ }
+ 

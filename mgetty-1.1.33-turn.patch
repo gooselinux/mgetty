@@ -1,0 +1,13 @@
+diff -up mgetty-1.1.36/g3/g32pbm.c.turn mgetty-1.1.36/g3/g32pbm.c
+--- mgetty-1.1.36/g3/g32pbm.c.turn	2008-10-09 22:57:28.000000000 +0200
++++ mgetty-1.1.36/g3/g32pbm.c	2008-10-09 22:57:28.000000000 +0200
+@@ -194,7 +194,8 @@ int byte, bit;
+     *rows = nr;
+     *cols = nc;
+     *bperrow = newbperrow;
+-    return newmap;
++    o_turn--;
++    return turnbm( cols, rows, newmap, bperrow );
+ }
+ 
+ int main _P2( (argc, argv), int argc, char ** argv )
